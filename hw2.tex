@@ -10,12 +10,71 @@
 
 \pagebreak
 \section{Convex hulls and linear separability}
+If \(S\) and \(T\) are linearly separable, then for some halfspace \(H\):
+
+\(ConvexHull(S) \subset H, ConvexHull(T) \subset H^C \)
+ 
+Then, because \( H \cap H^C = \emptyset \), we have  \( ConvexHull(S) \cap ConvexHull(T) = \emptyset \)
+ 
+Therefore linearly separable \(S\) and \(T\) implies that their convex hulls do not intersect.
+\linebreak
+
+
+
+Next, we'll prove that if  \( ConvexHull(S) \cap ConvexHull(T) = \emptyset \), \(S\) and \(T\) must be linearly separable.
+
+First, we can say that because convex sets, and thus convex hulls, are connected, and if two convex hulls, and thus sets \(S\) and \(T\) that form those convex hulls, don't intersect, \(S\) and \(T\) must be linearly separable.
+
+Now, assume \( ConvexHull(S) \cap ConvexHull(T) \ne \emptyset \). 
+
+Then there exists a point \(z: z \in S, z \in T\). To be linearly separable, there must be a hyperplane defined such that for all points \(x \in S\), 
+ \(w \cdot x + b > 0\), and for all points \(y \in T\),  \(w \cdot y + b < 0\). However, point \(z\) can't satisfy both of these conditions simultaneously, therefore \(S\) and \(T\) can't be linearly separable if their convex hulls intersect.
+
+We've shown that linearly separable \(S\) and \(T\) implies that their convex hulls do not intersect, and that the convex hulls of \(S\) and \(T\) must be disjoint for them to be linearly separable.
+Therefore we've shown that \(S\) and \(T\) are linearly separable if and only if their convex hulls don't intersect.
+
 
 \section{Regularization as noise-incorporation}
+\begin{equation}
+\begin{split}
+\bar{L}_s(w) = \frac{1}{2m}\sum_{i=1}^{m}(f(x_i +e_i)-y_i)^2 \\
+= \frac{1}{2m}\sum_{i=1}^{m}(\langle w, (x_i +e_i) \rangle + b-y_i)^2 \\
+= \frac{1}{2m}\sum_{i=1}^{m}(\langle w, x_i \rangle + \langle w,e_i \rangle + b -y_i)^2 \\
+=\frac{1}{2m}\sum_{i=1}^{m}(\langle w, x_i \rangle +b -y_i)^2 + \frac{1}{2m}\sum_{i=1}^{m}(\langle w,e_i \rangle(f(x_i) + \langle w_i,e_i \rangle-y_i)) \\
+=\frac{1}{m}\sum_{i=1}^{m}\frac{1}{2}E[(f(x_i) -y_i)^2] + \frac{1}{2}E[\langle w,e \rangle(f(x) + \langle w,e \rangle  -y)] \\
+=E[\frac{1}{m}\sum_{i=1}^{m}\frac{1}{2}(f(x_i) -y_i)^2] + \frac{1}{2}E[\langle w,e \rangle\langle w,e \rangle] \\
+=E[\frac{1}{m}\sum_{i=1}^{m}\frac{1}{2}(f(x_i) -y_i)^2] + \frac{1}{2}E[||w||||e||||w||||e||] \\
+=E[\frac{1}{m}\sum_{i=1}^{m}\frac{1}{2}(f(x_i) -y_i)^2] + \frac{||e||^2}{2}E[||w||^2] \\
+=E[\frac{1}{m}\sum_{i=1}^{m}\frac{1}{2}(f(x_i) -y_i)^2] + \lambda E[||w||^2] \\
+=E[\frac{1}{m}\sum_{i=1}^{m}\frac{1}{2}(f(x_i) -y_i)^2 + \lambda ||w||^2]
+\end{split}
+\end{equation}
+which is the expected regularized loss for noise-free observations with Tikhonov regularization.
+
+
 
 \section{Non-equivalence of "hard" and "soft" SVM}
+Hard margin SVM and soft margin SVM will not always return the exact same hypothesis for a linearly separable data set; in fact, we can contrive an example where soft margin SVM does not even correctly separate all of the data points (an example would be a pair of far-apart clusters that correspond to two different labels, and an outlier point just beyond the edge of one of the clusters that's labeled the same as the opposite cluster. Hard margin SVM will work to separate that outlier point from the cluster it's next to (since its only concerned with minimizing the norm of w). Soft margin SVM aims to minimize the norm of w AND the number of violations of the constraints, so we can easily choose a \(\lambda\) that allows for plenty of slack, to where the output hyperplane classifies the outlier point as the same as the points in the cluster it is near. Formally we can say that the hard and soft SVM will give different outputs when minimizing \(||w||^2\) and  minimizing \(\lambda||w||^2 + \frac{1}{m} \sum \xi_i\) are not equivalent.
 
 \section{Kernel construction}
+\begin{equation}
+\begin{split}
+\alpha K_1(u,v) = \langle \sqrt{\alpha} \Phi_1 (u), \sqrt{\alpha} \Phi_1 (v) \rangle ;  \beta K_2(u,v) = \langle \sqrt{\beta} \Phi_2 (u), \sqrt{\beta} \Phi_2 (v) \rangle  \\
+K(u,v) = \alpha K_1 (u,v) + \beta K_2 (u,v) = \langle \sqrt{\alpha} \Phi_1 (u), \sqrt{\alpha} \Phi_1 (v) \rangle + \langle \sqrt{\beta} \Phi_2 (u), \sqrt{\beta} \Phi_2 (v) \rangle \\
+= \langle [\sqrt{\alpha} \Phi_1 (u) \; \sqrt{\beta} \Phi_2 (u)] , [ \sqrt{\alpha} \Phi_1 (v) \; \sqrt{\beta} \Phi_2 (v) ] \rangle
+\end{split}
+\end{equation}
+Since \(K\) is a symmetric function that implements an inner product, the Gram matrix \(K(u,v)\) is positive semidefinite, meaning \(K(u,v)\) is a valid kernel.
+
+\begin{equation}
+\begin{split}
+K(u,v) = K_1(u,v) K_2(u,v) = \langle \Phi_1 (u), \Phi_1 (v) \rangle \langle \Phi_2 (u), \Phi_2 (v) \rangle \\
+= ( \Phi_1 (u_1)\Phi_1 (v_1) + ... \Phi_1 (u_m)\Phi_1 (v_m) )( \Phi_2 (u_1)\Phi_2 (v_1) + ... \Phi_2 (u_m)\Phi_2 (v_m) ) \\
+\end{split}
+\end{equation}
+Since \(K(u,v) \) is the element by element product of \(K_1(u,v)\) and \( K_2(u,v)\), which are positive semidefinite, it must also be positive semidefinite. Since 
+\(K_1\) and \( K_2\) are both valid kernels on \( X \), they must have the same number of columns, meaning \( K \) must also be symmetric. Therefore \( K(u,v) \)  is a valid kernel function.
+
 
 
 
